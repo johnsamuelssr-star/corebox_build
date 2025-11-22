@@ -5,7 +5,7 @@ from typing import Literal, Optional
 from pydantic import BaseModel
 
 
-AllowedLeadStatus = Literal["new", "contacted", "enrolled", "closed"]
+AllowedLeadStatus = Literal["new", "contacted", "trial_scheduled", "enrolled", "closed_lost"]
 
 
 class LeadBase(BaseModel):
@@ -18,6 +18,16 @@ class LeadBase(BaseModel):
 
 class LeadCreate(LeadBase):
     """Schema for lead creation requests."""
+
+
+class LeadUpdate(BaseModel):
+    """Schema for lead updates with partial fields."""
+
+    parent_name: Optional[str] = None
+    student_name: Optional[str] = None
+    grade_level: Optional[int] = None
+    status: Optional[AllowedLeadStatus] = None
+    notes: Optional[str] = None
 
 
 class LeadRead(LeadBase):

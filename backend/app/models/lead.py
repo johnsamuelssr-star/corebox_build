@@ -1,6 +1,8 @@
 """Lead model for CoreBox CRM."""
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Text
+from datetime import datetime, timezone
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from backend.app.db.base import Base
@@ -14,7 +16,11 @@ class Lead(Base):
     student_name = Column(String, nullable=False)
     grade_level = Column(Integer, nullable=True)
     status = Column(String, nullable=False, default="new")
+    status_changed_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
     notes = Column(Text, nullable=True)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     owner = relationship("User", back_populates="leads")
+    lead_notes = relationship("Note", back_populates="lead", cascade="all, delete-orphan")
+    timeline = relationship("TimelineEvent", back_populates="lead", cascade="all, delete-orphan")
+    reminders = relationship("Reminder", back_populates="lead", cascade="all, delete-orphan")
