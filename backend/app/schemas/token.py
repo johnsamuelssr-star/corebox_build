@@ -1,0 +1,8 @@
+"""Access token schema used for authentication responses."""
+
+from pydantic import BaseModel
+
+
+class AccessToken(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
