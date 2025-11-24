@@ -168,3 +168,74 @@ class StudentAnalyticsReport(BaseModel):
     students: list[StudentAnalyticsEntry]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ParentReportStudentInfo(BaseModel):
+    id: int
+    display_name: str
+    parent_display_name: str | None
+    contact_email: str | None
+    contact_phone: str | None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ParentReportPeriod(BaseModel):
+    start_date: str | None = None
+    end_date: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ParentReportProgressSummary(BaseModel):
+    total_sessions_all_time: int
+    total_hours_all_time: str
+    sessions_in_period: int
+    hours_in_period: str
+    consistency_score_0_100: int
+    current_session_streak_weeks: int
+    last_session_date: str | None
+    first_session_date: str | None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ParentReportBillingSummary(BaseModel):
+    total_invoiced_all_time: str
+    total_paid_all_time: str
+    total_outstanding_all_time: str
+    nominal_rate_per_hour: str
+    billing_vs_usage_ratio: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ParentReportWeeklyActivityPoint(BaseModel):
+    year: int
+    iso_week: int
+    start_date: str
+    end_date: str
+    session_count: int
+    hours: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ParentReportNotesPlaceholders(BaseModel):
+    academic_notes: str
+    behavior_notes: str
+    next_steps: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ParentReport(BaseModel):
+    as_of: str
+    period: ParentReportPeriod
+    student: ParentReportStudentInfo
+    progress_summary: ParentReportProgressSummary
+    billing_summary: ParentReportBillingSummary
+    weekly_activity_last_8_weeks: list[ParentReportWeeklyActivityPoint]
+    notes_placeholders: ParentReportNotesPlaceholders
+
+    model_config = ConfigDict(from_attributes=True)
