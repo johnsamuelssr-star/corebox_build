@@ -19,6 +19,8 @@ def login_user(credentials: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == credentials.email).first()
     if not user:
         raise HTTPException(status_code=400, detail="Invalid credentials")
+    if not user.is_active:
+        raise HTTPException(status_code=400, detail="Inactive user")
     if not verify_password(credentials.password, user.hashed_password):  # Verify password securely
         raise HTTPException(status_code=400, detail="Invalid credentials")
     token = create_access_token(user_id=user.id)  # Issue JWT for authenticated user

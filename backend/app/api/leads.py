@@ -2,6 +2,8 @@
 
 from datetime import datetime, timezone
 
+from sqlalchemy import or_
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -58,6 +60,8 @@ async def list_leads(
     search: str | None = None,
     skip: int = 0,
     limit: int = 50,
+    sort_by: str | None = "created_at",
+    sort_order: str | None = "desc",
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -65,10 +69,36 @@ async def list_leads(
     if status:
         query = query.filter(Lead.status == status)
     if search:
-        pattern = f"%{search}%"
-        query = query.filter(
-            (Lead.parent_name.ilike(pattern)) | (Lead.student_name.ilike(pattern))
-        )
+        tokens = [t for t in search.split() if t]
+        for token in tokens:
+            pattern = f"%{token}%"
+            token_clause = or_(
+                Lead.parent_name.ilike(pattern),
+                Lead.student_name.ilike(pattern),
+                Lead.notes.ilike(pattern),
+            )
+            query = query.filter(token_clause)
+    supported_sort_fields = {
+        "created_at": Lead.created_at,
+        "status": Lead.status,
+        "grade_level": Lead.grade_level,
+        "status_changed_at": Lead.status_changed_at,
+    }
+    sort_field = sort_by or "created_at"
+    if sort_field not in supported_sort_fields:
+        raise HTTPException(status_code=400, detail="Invalid sort_by value")
+    sort_column = supported_sort_fields[sort_field]
+
+    sort_order_normalized = (sort_order or "desc").lower()
+    if sort_order_normalized not in {"asc", "desc"}:
+        raise HTTPException(status_code=400, detail="Invalid sort_order value")
+
+    if sort_order_normalized == "asc":
+        order_by_clause = [sort_column.asc(), Lead.id.asc()]
+    else:
+        order_by_clause = [sort_column.desc(), Lead.id.desc()]
+
+    query = query.order_by(*order_by_clause)
     query = query.offset(skip).limit(limit)
     return query.all()
 

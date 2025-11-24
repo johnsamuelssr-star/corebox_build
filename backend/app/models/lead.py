@@ -6,6 +6,7 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from backend.app.db.base import Base
+from backend.app.core.time import utc_now
 
 
 class Lead(Base):
@@ -17,6 +18,7 @@ class Lead(Base):
     grade_level = Column(Integer, nullable=True)
     status = Column(String, nullable=False, default="new")
     status_changed_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, nullable=False, default=utc_now)
     notes = Column(Text, nullable=True)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
@@ -24,3 +26,4 @@ class Lead(Base):
     lead_notes = relationship("Note", back_populates="lead", cascade="all, delete-orphan")
     timeline = relationship("TimelineEvent", back_populates="lead", cascade="all, delete-orphan")
     reminders = relationship("Reminder", back_populates="lead", cascade="all, delete-orphan")
+    student = relationship("Student", back_populates="lead", uselist=False)

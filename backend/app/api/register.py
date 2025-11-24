@@ -21,7 +21,10 @@ def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
     hashed_password = get_password_hash(user_in.password)  # Hash password before storing
+    existing_count = db.query(User).count()
     user = User(email=user_in.email, hashed_password=hashed_password)
+    if existing_count == 0:
+        user.is_admin = True
     db.add(user)
     db.commit()
     db.refresh(user)

@@ -2,7 +2,7 @@
 
 from typing import Literal, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 AllowedLeadStatus = Literal["new", "contacted", "trial_scheduled", "enrolled", "closed_lost"]
@@ -35,5 +35,4 @@ class LeadRead(LeadBase):
 
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

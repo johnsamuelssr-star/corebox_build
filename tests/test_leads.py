@@ -341,6 +341,149 @@ def test_filters_do_not_cross_owners():
     assert data_a[0]["parent_name"] == "Alice A"
 
 
+def test_default_sort_by_created_at_desc():
+    client = TestClient(app)
+    token = register_and_login(client, "sortdefault@example.com", "secret")
+    payloads = [
+        {"parent_name": "First", "student_name": "S1", "grade_level": 1, "status": "new", "notes": None},
+        {"parent_name": "Second", "student_name": "S2", "grade_level": 2, "status": "new", "notes": None},
+        {"parent_name": "Third", "student_name": "S3", "grade_level": 3, "status": "new", "notes": None},
+    ]
+    for payload in payloads:
+        create_lead(client, token, payload)
+
+    response = client.get("/leads", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    names = [lead["parent_name"] for lead in response.json()]
+    assert names[0] == "Third"
+    assert names[-1] == "First"
+
+
+def test_sort_by_status_asc():
+    client = TestClient(app)
+    token = register_and_login(client, "sortstatus@example.com", "secret")
+    statuses = ["new", "contacted", "trial_scheduled", "enrolled"]
+    for idx, status in enumerate(statuses):
+        create_lead(
+            client,
+            token,
+            {"parent_name": f"P{idx}", "student_name": f"S{idx}", "grade_level": idx, "status": status, "notes": None},
+        )
+
+    response = client.get("/leads", params={"sort_by": "status", "sort_order": "asc"}, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    returned_statuses = [lead["status"] for lead in response.json()]
+    assert returned_statuses == sorted(statuses)
+
+
+def test_sort_by_grade_level_desc():
+    client = TestClient(app)
+    token = register_and_login(client, "sortgrade@example.com", "secret")
+    grades = [3, 8, 5]
+    for grade in grades:
+        create_lead(
+            client,
+            token,
+            {"parent_name": f"P{grade}", "student_name": f"S{grade}", "grade_level": grade, "status": "new", "notes": None},
+        )
+
+    response = client.get("/leads", params={"sort_by": "grade_level", "sort_order": "desc"}, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    returned_grades = [lead["grade_level"] for lead in response.json()]
+    assert returned_grades == sorted(grades, reverse=True)
+
+
+def test_invalid_sort_by_400():
+    client = TestClient(app)
+    token = register_and_login(client, "sortinvalid@example.com", "secret")
+    response = client.get("/leads", params={"sort_by": "unknown_field"}, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 400
+    assert "Invalid sort_by value" in response.json()["detail"]
+
+
+def test_invalid_sort_order_400():
+    client = TestClient(app)
+    token = register_and_login(client, "sortorderinvalid@example.com", "secret")
+    response = client.get("/leads", params={"sort_by": "created_at", "sort_order": "sideways"}, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 400
+    assert "Invalid sort_order value" in response.json()["detail"]
+
+
+def test_sort_respects_owner_isolation():
+    client = TestClient(app)
+    token_a = register_and_login(client, "sortiso_a@example.com", "secret")
+    token_b = register_and_login(client, "sortiso_b@example.com", "secret")
+
+    create_lead(client, token_a, {"parent_name": "A1", "student_name": "SA1", "grade_level": 1, "status": "new", "notes": None})
+    create_lead(client, token_b, {"parent_name": "B1", "student_name": "SB1", "grade_level": 2, "status": "contacted", "notes": None})
+
+    response = client.get("/leads", params={"sort_by": "created_at", "sort_order": "asc"}, headers={"Authorization": f"Bearer {token_a}"})
+    assert response.status_code == 200
+    data = response.json()
+    assert all("A" in lead["parent_name"] for lead in data)
+
+
+def test_search_leads_by_multiple_tokens():
+    client = TestClient(app)
+    token = register_and_login(client, "multisearch@example.com", "secret")
+    leads = [
+        {"parent_name": "Alice Johnson", "student_name": "Mark", "grade_level": 7, "status": "new", "notes": "7th grade math"},
+        {"parent_name": "Bob Smith", "student_name": "Alicia Stone", "grade_level": 8, "status": "new", "notes": "algebra"},
+        {"parent_name": "John Doe", "student_name": "Chris", "grade_level": 9, "status": "new", "notes": "history only"},
+    ]
+    for payload in leads:
+        create_lead(client, token, payload)
+
+    response = client.get("/leads", params={"search": "ali math"}, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    results = response.json()
+    assert all("john doe" not in lead["parent_name"].lower() for lead in results)
+    for lead in results:
+        combined = " ".join(
+            [
+                lead.get("parent_name", "") or "",
+                lead.get("student_name", "") or "",
+                lead.get("notes", "") or "",
+            ]
+        ).lower()
+        assert "ali" in combined
+        assert "math" in combined
+
+
+def test_search_leads_matches_notes_field():
+    client = TestClient(app)
+    token = register_and_login(client, "notesearch@example.com", "secret")
+    payload = {
+        "parent_name": "Parent X",
+        "student_name": "Student X",
+        "grade_level": 5,
+        "status": "new",
+        "notes": "Highly motivated, loves robotics",
+    }
+    create_lead(client, token, payload)
+
+    response = client.get("/leads", params={"search": "robotics"}, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert "robotics" in data[0]["notes"].lower()
+
+
+def test_search_is_owner_isolated():
+    client = TestClient(app)
+    token_a = register_and_login(client, "searchiso_a@example.com", "secret")
+    token_b = register_and_login(client, "searchiso_b@example.com", "secret")
+
+    create_lead(
+        client,
+        token_a,
+        {"parent_name": "Parent A", "student_name": "Student A", "grade_level": 1, "status": "new", "notes": "PRIVATEKEYWORD note"},
+    )
+    response = client.get("/leads", params={"search": "PRIVATEKEYWORD"}, headers={"Authorization": f"Bearer {token_b}"})
+    assert response.status_code == 200
+    assert response.json() == []
+
+
 def test_valid_status_transitions():
     client = TestClient(app)
     token = register_and_login(client, "statusflow@example.com", "secret")

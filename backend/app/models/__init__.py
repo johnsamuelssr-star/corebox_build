@@ -3,3 +3,11 @@ from .lead import Lead
 from .note import Note
 from .timeline import TimelineEvent
 from .reminder import Reminder
+from .student import Student
+from .session import Session
+from .rate_history import RateHistory
+from .user_preferences import UserPreferences
+from .invoice_item import InvoiceItem
+from .invoice_template import InvoiceTemplate
+from .invoice import Invoice
+from .payment import Payment

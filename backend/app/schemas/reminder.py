@@ -3,7 +3,7 @@
 from datetime import datetime, timezone
 from typing import Optional
 
-from pydantic import BaseModel, field_validator, model_serializer
+from pydantic import BaseModel, ConfigDict, field_validator, model_serializer
 
 
 class ReminderBase(BaseModel):
@@ -58,5 +58,4 @@ class ReminderRead(ReminderBase):
                 data[field] = v.replace("Z", "+00:00")
         return data
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
