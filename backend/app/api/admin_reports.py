@@ -16,11 +16,13 @@ from backend.app.schemas.admin_reporting import (
     PaymentAnalytics,
     StudentAnalyticsReport,
     ParentReport,
+    ParentReportWithNarrative,
 )
 from backend.app.services.invoice_pipeline_reporting import get_invoice_pipeline_summary
 from backend.app.services.payment_analytics_reporting import get_payment_analytics
 from backend.app.services.student_analytics_reporting import get_student_analytics
 from backend.app.services.parent_report_service import get_parent_report
+from backend.app.services.parent_report_narrative_service import get_parent_report_with_narrative
 from backend.app.services.reports import get_financial_summary_for_owner
 
 router = APIRouter(prefix="/admin/reports", tags=["admin-reports"])
@@ -94,6 +96,26 @@ async def parent_report(
 ):
     effective_today = today or date.today()
     return get_parent_report(
+        db=db,
+        owner_id=current_user.id,
+        student_id=student_id,
+        today=effective_today,
+        start_date=start_date,
+        end_date=end_date,
+    )
+
+
+@router.get("/parent-report/{student_id}/narrative", response_model=ParentReportWithNarrative)
+async def parent_report_narrative(
+    student_id: int,
+    today: date | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    effective_today = today or date.today()
+    return get_parent_report_with_narrative(
         db=db,
         owner_id=current_user.id,
         student_id=student_id,

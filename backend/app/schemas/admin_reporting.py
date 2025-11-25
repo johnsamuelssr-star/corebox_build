@@ -239,3 +239,27 @@ class ParentReport(BaseModel):
     notes_placeholders: ParentReportNotesPlaceholders
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ParentReportNarrative(BaseModel):
+    overview: str
+    attendance: str
+    academic_progress: str
+    behavior_and_engagement: str
+    next_steps: str
+    billing_overview: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ParentReportWithNarrative(BaseModel):
+    as_of: str
+    period: ParentReportPeriod
+    student: ParentReportStudentInfo
+    progress_summary: ParentReportProgressSummary
+    billing_summary: ParentReportBillingSummary
+    weekly_activity_last_8_weeks: list[ParentReportWeeklyActivityPoint]
+    notes_placeholders: ParentReportNotesPlaceholders
+    narrative: ParentReportNarrative
+
+    model_config = ConfigDict(from_attributes=True)
