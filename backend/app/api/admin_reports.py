@@ -1,6 +1,6 @@
 """Admin/owner financial reporting endpoints."""
 
-from datetime import date
+from datetime import date, datetime, timezone
 
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
@@ -17,6 +17,8 @@ from backend.app.schemas.admin_reporting import (
     StudentAnalyticsReport,
     ParentReport,
     ParentReportWithNarrative,
+    OwnerDashboardSummary,
+    StudentDashboardList,
 )
 from backend.app.services.invoice_pipeline_reporting import get_invoice_pipeline_summary
 from backend.app.services.payment_analytics_reporting import get_payment_analytics
@@ -24,6 +26,7 @@ from backend.app.services.student_analytics_reporting import get_student_analyti
 from backend.app.services.parent_report_service import get_parent_report
 from backend.app.services.parent_report_narrative_service import get_parent_report_with_narrative
 from backend.app.services.parent_report_export_service import get_parent_report_export_bytes
+from backend.app.services.dashboard_service import get_owner_dashboard_summary, get_student_dashboard_list
 from backend.app.services.reports import get_financial_summary_for_owner
 
 router = APIRouter(prefix="/admin/reports", tags=["admin-reports"])
@@ -151,3 +154,23 @@ async def parent_report_export_pdf(
         "Content-Disposition": f'attachment; filename="parent_report_{student_id}.pdf"'
     }
     return Response(content=pdf_bytes, media_type="application/pdf", headers=headers)
+
+
+@router.get("/dashboard/summary", response_model=OwnerDashboardSummary)
+async def owner_dashboard_summary(
+    today: date | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    effective_today = today or datetime.now(timezone.utc).date()
+    return get_owner_dashboard_summary(db=db, owner_id=current_user.id, today=effective_today)
+
+
+@router.get("/dashboard/students", response_model=StudentDashboardList)
+async def student_dashboard_list(
+    today: date | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    effective_today = today or datetime.now(timezone.utc).date()
+    return get_student_dashboard_list(db=db, owner_id=current_user.id, today=effective_today)

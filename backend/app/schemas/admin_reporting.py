@@ -271,3 +271,77 @@ class ParentReportExport(BaseModel):
     content: bytes
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# Dashboard card schemas
+
+
+class OwnerDashboardFinancialCard(BaseModel):
+    total_invoiced_all_time: str
+    total_paid_all_time: str
+    total_outstanding_all_time: str
+    total_paid_last_30_days: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class OwnerDashboardActivityCard(BaseModel):
+    total_sessions_all_time: int
+    total_hours_all_time: str
+    sessions_last_30_days: int
+    hours_last_30_days: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class OwnerDashboardArCard(BaseModel):
+    current: str
+    days_1_30: str
+    days_31_60: str
+    days_61_90: str
+    days_90_plus: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class OwnerDashboardPipelineCard(BaseModel):
+    draft_count: int
+    issued_count: int
+    partially_paid_count: int
+    paid_count: int
+    past_due_count: int
+    upcoming_7_days_outstanding: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class OwnerDashboardSummary(BaseModel):
+    as_of: str
+    financial: OwnerDashboardFinancialCard
+    activity: OwnerDashboardActivityCard
+    ar: OwnerDashboardArCard
+    pipeline: OwnerDashboardPipelineCard
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class StudentDashboardRow(BaseModel):
+    student_id: int
+    student_display_name: str
+    parent_display_name: str | None
+    total_sessions_all_time: int
+    total_hours_all_time: str
+    consistency_score_0_100: int
+    current_session_streak_weeks: int
+    total_invoiced_all_time: str
+    total_paid_all_time: str
+    total_outstanding_all_time: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class StudentDashboardList(BaseModel):
+    as_of: str
+    students: list[StudentDashboardRow]
+
+    model_config = ConfigDict(from_attributes=True)

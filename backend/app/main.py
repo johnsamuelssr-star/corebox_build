@@ -14,6 +14,7 @@ from backend.app.api import reminders
 from backend.app.api import students
 from backend.app.api import sessions
 from backend.app.api import dashboard
+from backend.app.api import admin_dashboard
 from backend.app.api import rates
 from backend.app.api import preferences
 from backend.app.api import profile
@@ -39,6 +40,7 @@ app.include_router(reminders.router)
 app.include_router(students.router)
 app.include_router(sessions.router)
 app.include_router(dashboard.router)
+app.include_router(admin_dashboard.router)
 app.include_router(rates.router)
 app.include_router(preferences.router)
 app.include_router(profile.router)
