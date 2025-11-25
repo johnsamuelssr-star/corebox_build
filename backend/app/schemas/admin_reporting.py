@@ -263,3 +263,11 @@ class ParentReportWithNarrative(BaseModel):
     narrative: ParentReportNarrative
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ParentReportExport(BaseModel):
+    """Represents exported parent report content."""
+
+    content: bytes
+
+    model_config = ConfigDict(from_attributes=True)
