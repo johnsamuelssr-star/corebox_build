@@ -28,3 +28,4 @@ class Student(Base):
     sessions = relationship("Session", back_populates="student", cascade="all, delete-orphan")
     invoice_items = relationship("InvoiceItem", back_populates="student")
     invoices = relationship("Invoice", back_populates="student", cascade="all, delete-orphan")
+    parent_links = relationship("ParentStudentLink", back_populates="student", cascade="all, delete-orphan")

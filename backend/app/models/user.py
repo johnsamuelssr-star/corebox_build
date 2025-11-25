@@ -32,3 +32,4 @@ class User(Base):
     invoice_templates = relationship("InvoiceTemplate", back_populates="owner", cascade="all, delete-orphan")
     invoices = relationship("Invoice", back_populates="owner", cascade="all, delete-orphan")
     payments = relationship("Payment", back_populates="owner", cascade="all, delete-orphan")
+    parent_links = relationship("ParentStudentLink", back_populates="parent_user", cascade="all, delete-orphan")

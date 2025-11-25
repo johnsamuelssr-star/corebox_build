@@ -1,4 +1,6 @@
-from pydantic import BaseModel, ConfigDict
+from typing import List, Optional
+
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class ActivityStudentSummary(BaseModel):
@@ -269,6 +271,35 @@ class ParentReportExport(BaseModel):
     """Represents exported parent report content."""
 
     content: bytes
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# Parent account/linking schemas
+
+
+class ParentStudentLinkCreate(BaseModel):
+    student_id: int
+    is_primary: bool = True
+
+
+class ParentAccountCreate(BaseModel):
+    email: EmailStr
+    password: str
+    full_name: Optional[str] = None
+    students: List[ParentStudentLinkCreate]
+
+
+class ParentStudentInfo(BaseModel):
+    student_id: int
+    student_display_name: str
+    owner_id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ParentMeStudentsResponse(BaseModel):
+    students: List[ParentStudentInfo]
 
     model_config = ConfigDict(from_attributes=True)
 

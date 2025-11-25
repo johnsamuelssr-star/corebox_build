@@ -26,6 +26,9 @@ from backend.app.api import payments
 from backend.app.api import reports
 from backend.app.api import revenue
 from backend.app.api import admin_reports
+from backend.app.api import parent
+from backend.app.api import admin_parents
+from backend.app.api import parent_portal
 
 app = FastAPI()
 settings = get_settings()
@@ -52,6 +55,9 @@ app.include_router(payments.router)
 app.include_router(reports.router)
 app.include_router(revenue.router)
 app.include_router(admin_reports.router)
+app.include_router(parent.router)
+app.include_router(admin_parents.router)
+app.include_router(parent_portal.router)
 
 
 @app.get("/")
