@@ -4,6 +4,8 @@ from datetime import datetime
 from decimal import Decimal
 
 from collections import defaultdict
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -37,7 +39,9 @@ def _get_owned_student(db: Session, student_id: int, user_id: int) -> Student:
     return student
 
 
-def _get_owned_lead(db: Session, lead_id: int, user_id: int) -> Lead:
+def _get_owned_lead(db: Session, lead_id: Optional[int], user_id: int) -> Lead | None:
+    if lead_id is None:
+        return None
     lead = db.query(Lead).filter(Lead.id == lead_id, Lead.owner_id == user_id).first()
     if not lead:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lead not found")

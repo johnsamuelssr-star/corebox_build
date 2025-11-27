@@ -5,7 +5,7 @@ from datetime import datetime
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.orm import relationship
 
-from backend.app.db.base import Base
+from backend.app.db.base_class import Base
 from backend.app.core.time import utc_now
 
 

@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from backend.app.db.base import Base
+from backend.app.db.base_class import Base
 
 
 class TimelineEvent(Base):

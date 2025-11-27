@@ -4,7 +4,7 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, Numeric
 from sqlalchemy.orm import relationship
 
 from backend.app.core.time import utc_now
-from backend.app.db.base import Base
+from backend.app.db.base_class import Base
 
 
 class RateHistory(Base):

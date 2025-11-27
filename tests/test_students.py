@@ -93,6 +93,32 @@ def test_list_students_owner_isolated():
     assert all(student["parent_name"].startswith("A") for student in data)
 
 
+def test_list_students_empty_returns_200():
+    client = TestClient(app)
+    token = register_and_login(client, "student_empty@example.com", "secret")
+    resp = client.get("/students", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert resp.json() == []
+
+
+def test_list_students_does_not_require_lead():
+    client = TestClient(app)
+    token = register_and_login(client, "student_nolead@example.com", "secret")
+
+    create_resp = client.post(
+        "/students",
+        json={"parent_name": "Parent", "student_name": "Student", "grade_level": 3},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert create_resp.status_code in (200, 201)
+
+    list_resp = client.get("/students", headers={"Authorization": f"Bearer {token}"})
+    assert list_resp.status_code == 200
+    data = list_resp.json()
+    assert len(data) >= 1
+    assert any(student["student_name"] == "Student" for student in data)
+
+
 def test_get_student_by_id_owner_isolated():
     client = TestClient(app)
     token_a = register_and_login(client, "student5a@example.com", "secret")

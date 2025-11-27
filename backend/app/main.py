@@ -2,6 +2,7 @@
 # Initial CoreBox CRM backend entrypoint ??" minimal FastAPI app.
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from backend.app.core.settings import get_settings
 from backend.app.api import auth
 from backend.app.api import register
@@ -29,9 +30,24 @@ from backend.app.api import admin_reports
 from backend.app.api import parent
 from backend.app.api import admin_parents
 from backend.app.api import parent_portal
+from backend.app.api import owner
 
 app = FastAPI()
 settings = get_settings()
+
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(auth.router)
 app.include_router(register.router)
 app.include_router(login.router)
@@ -58,6 +74,7 @@ app.include_router(admin_reports.router)
 app.include_router(parent.router)
 app.include_router(admin_parents.router)
 app.include_router(parent_portal.router)
+app.include_router(owner.router)
 
 
 @app.get("/")

@@ -1,7 +1,4 @@
-from sqlalchemy.orm import declarative_base
-
-# Base class for all ORM models
-Base = declarative_base()
+from backend.app.db.base_class import Base
 
 # Import models to register metadata for Base.metadata.create_all in tests
 from backend.app.models.user import User  # noqa: F401
