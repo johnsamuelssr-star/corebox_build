@@ -11,3 +11,4 @@ from .invoice_item import InvoiceItem
 from .invoice_template import InvoiceTemplate
 from .invoice import Invoice
 from .payment import Payment
+from .audit_log import AuditLog

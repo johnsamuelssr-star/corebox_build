@@ -21,5 +21,5 @@ class Payment(Base):
     created_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
-    invoice = relationship("Invoice", back_populates="payments")
-    owner = relationship("User", back_populates="payments")
+    invoice = relationship("Invoice", back_populates="payments", foreign_keys=[invoice_id])
+    owner = relationship("User", back_populates="payments", foreign_keys=[owner_id])

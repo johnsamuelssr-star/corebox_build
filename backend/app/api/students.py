@@ -19,7 +19,8 @@ from backend.app.models.user import User
 from backend.app.schemas.progress import StudentProgress, SubjectProgress
 from backend.app.schemas.report import StudentReport
 from backend.app.schemas.session import SessionRead
-from backend.app.schemas.student import StudentCreate, StudentRead, StudentUpdate
+from backend.app.schemas.student import StudentAnonymizeResponse, StudentCreate, StudentRead, StudentUpdate
+from backend.app.services.student_anonymization import anonymize_student
 
 router = APIRouter(prefix="/students", tags=["students"])
 
@@ -245,3 +246,18 @@ async def delete_student(student_id: int, db: Session = Depends(get_db), current
     db.delete(student)
     db.commit()
     return {"status": "deleted", "id": student_id}
+
+
+@router.post("/{student_id}/anonymize", response_model=StudentAnonymizeResponse)
+async def anonymize_student_endpoint(
+    student_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    student, already_anonymized = anonymize_student(
+        db,
+        student_id=student_id,
+        owner_id=current_user.id,
+        acting_user_id=current_user.id,
+    )
+    return StudentAnonymizeResponse(student=student, already_anonymized=already_anonymized)

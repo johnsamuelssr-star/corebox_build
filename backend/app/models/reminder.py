@@ -21,4 +21,4 @@ class Reminder(Base):
     completed_at = Column(DateTime(timezone=True), nullable=True)
 
     lead = relationship("Lead", back_populates="reminders")
-    owner = relationship("User", back_populates="reminders")
+    owner = relationship("User", back_populates="reminders", foreign_keys=[owner_id])

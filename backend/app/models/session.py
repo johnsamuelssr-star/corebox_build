@@ -29,6 +29,6 @@ class Session(Base):
     created_at = Column(DateTime, nullable=False, default=utc_now)
     updated_at = Column(DateTime, nullable=False, default=utc_now, onupdate=utc_now)
 
-    owner = relationship("User", back_populates="sessions")
-    student = relationship("Student", back_populates="sessions")
+    owner = relationship("User", back_populates="sessions", foreign_keys=[owner_id])
+    student = relationship("Student", back_populates="sessions", foreign_keys=[student_id])
     invoice_items = relationship("InvoiceItem", back_populates="session", cascade="all, delete-orphan")

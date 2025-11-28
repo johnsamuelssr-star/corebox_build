@@ -12,6 +12,9 @@ class StudentBase(BaseModel):
     grade_level: Optional[int] = None
     subject_focus: Optional[str] = None
     status: Optional[str] = "active"
+    is_active: Optional[bool] = True
+    is_anonymized: Optional[bool] = False
+    anonymized_at: Optional[datetime] = None
 
 
 class StudentCreate(StudentBase):
@@ -33,6 +36,11 @@ class StudentRead(StudentBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class StudentAnonymizeResponse(BaseModel):
+    student: StudentRead
+    already_anonymized: bool
 
 
 class OwnerStudentSummary(BaseModel):

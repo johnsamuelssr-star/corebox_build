@@ -18,5 +18,5 @@ class ParentStudentLink(Base):
         UniqueConstraint("parent_user_id", "student_id", name="uq_parent_student_link"),
     )
 
-    parent_user = relationship("User", back_populates="parent_links")
-    student = relationship("Student", back_populates="parent_links")
+    parent_user = relationship("User", back_populates="parent_links", foreign_keys=[parent_user_id])
+    student = relationship("Student", back_populates="parent_links", foreign_keys=[student_id])

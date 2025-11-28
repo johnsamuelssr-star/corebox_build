@@ -21,8 +21,8 @@ class InvoiceItem(Base):
     invoice_id = Column(Integer, ForeignKey("invoices.id"), nullable=True)
     template_id = Column(Integer, ForeignKey("invoice_templates.id"), nullable=True)
 
-    session = relationship("Session", back_populates="invoice_items")
-    student = relationship("Student", back_populates="invoice_items")
-    owner = relationship("User", back_populates="invoice_items")
-    invoice = relationship("Invoice", back_populates="items")
-    template = relationship("InvoiceTemplate", back_populates="invoice_items")
+    session = relationship("Session", back_populates="invoice_items", foreign_keys=[session_id])
+    student = relationship("Student", back_populates="invoice_items", foreign_keys=[student_id])
+    owner = relationship("User", back_populates="invoice_items", foreign_keys=[owner_id])
+    invoice = relationship("Invoice", back_populates="items", foreign_keys=[invoice_id])
+    template = relationship("InvoiceTemplate", back_populates="invoice_items", foreign_keys=[template_id])
