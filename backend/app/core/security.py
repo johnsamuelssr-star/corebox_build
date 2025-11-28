@@ -17,7 +17,7 @@ from backend.app.core.settings import get_settings
 from backend.app.models.user import User
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-security_scheme = HTTPBearer(auto_error=True)
+security_scheme = HTTPBearer(auto_error=False)
 
 
 def get_password_hash(password: str) -> str:
@@ -71,6 +71,8 @@ async def get_current_user(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    if credentials is None or not getattr(credentials, "credentials", None):
+        raise credentials_exception
     try:
         payload = decode_access_token(credentials.credentials)
     except ValueError:

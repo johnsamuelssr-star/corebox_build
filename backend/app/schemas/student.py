@@ -32,6 +32,9 @@ class StudentUpdate(BaseModel):
 class StudentRead(StudentBase):
     id: int
     lead_id: Optional[int] = None
+    parent_name: Optional[str] = None
+    student_name: Optional[str] = None
+    anonymized_by_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
 

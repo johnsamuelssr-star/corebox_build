@@ -1,6 +1,6 @@
 """Student endpoints for CoreBox CRM."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
 from collections import defaultdict
@@ -34,7 +34,16 @@ class StudentSessionSummary(BaseModel):
 
 
 def _get_owned_student(db: Session, student_id: int, user_id: int) -> Student:
-    student = db.query(Student).filter(Student.id == student_id, Student.owner_id == user_id).first()
+    student = (
+        db.query(Student)
+        .filter(
+            Student.id == student_id,
+            Student.owner_id == user_id,
+            Student.is_active.is_(True),
+            Student.is_anonymized.is_(False),
+        )
+        .first()
+    )
     if not student:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student not found")
     return student
@@ -70,7 +79,15 @@ async def create_student(student_in: StudentCreate, db: Session = Depends(get_db
 
 @router.get("/", response_model=list[StudentRead])
 async def list_students(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return db.query(Student).filter(Student.owner_id == current_user.id).all()
+    return (
+        db.query(Student)
+        .filter(
+            Student.owner_id == current_user.id,
+            Student.is_active.is_(True),
+            Student.is_anonymized.is_(False),
+        )
+        .all()
+    )
 
 
 @router.get("/{student_id}", response_model=StudentRead)
@@ -241,9 +258,21 @@ async def update_student(student_id: int, student_in: StudentUpdate, db: Session
 
 
 @router.delete("/{student_id}")
-async def delete_student(student_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def delete_student(
+    student_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
     student = _get_owned_student(db, student_id, current_user.id)
-    db.delete(student)
+    if student.is_anonymized:
+        return {"status": "deleted", "id": student_id}
+
+    student.is_active = False
+    student.is_anonymized = True
+    student.anonymized_at = datetime.now(timezone.utc)
+    student.anonymized_by_id = current_user.id
+    student.parent_name = "Deleted Guardian"
+    student.student_name = "Deleted Student"
+    student.status = "inactive"
+
     db.commit()
     return {"status": "deleted", "id": student_id}
 
