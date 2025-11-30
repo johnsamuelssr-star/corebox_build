@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
@@ -14,7 +14,16 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def create_or_get_parent_user(db: Session, email: str, password: str, full_name: str | None = None) -> User:
+def create_or_get_parent_user(
+    db: Session,
+    email: str,
+    password: Optional[str] = None,
+    full_name: str | None = None,
+    first_name: str | None = None,
+    last_name: str | None = None,
+    phone: str | None = None,
+    notes: str | None = None,
+) -> User:
     """
     Idempotent-ish helper:
     - If a user with this email exists, return it.
@@ -24,10 +33,19 @@ def create_or_get_parent_user(db: Session, email: str, password: str, full_name:
     if user:
         return user
 
+    hashed_password = get_password_hash(password) if password else None
+    computed_full_name = full_name
+    if not computed_full_name and (first_name or last_name):
+        computed_full_name = " ".join(part for part in [first_name, last_name] if part) or None
+
     user = User(
         email=email,
-        hashed_password=get_password_hash(password),
-        full_name=full_name,
+        hashed_password=hashed_password,
+        full_name=computed_full_name,
+        first_name=first_name,
+        last_name=last_name,
+        phone=phone,
+        bio=notes,
         is_active=True,
     )
     db.add(user)
