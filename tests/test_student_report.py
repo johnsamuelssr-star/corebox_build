@@ -36,6 +36,7 @@ def create_session(client: TestClient, token: str, student_id: int, subject: str
         "subject": subject,
         "duration_minutes": duration,
         "session_date": date_str,
+        "start_time": "10:00:00",
     }
     if rate is not None:
         body["rate_per_hour"] = rate

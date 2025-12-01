@@ -5,6 +5,8 @@ from backend.app.db.base import Base
 from backend.app.db.session import engine
 from backend.app.main import app
 
+DEFAULT_START_TIME = "10:00:00"
+
 
 @pytest.fixture(autouse=True)
 def setup_db():
@@ -37,6 +39,7 @@ def test_create_session_for_student_basic():
             "subject": "Math",
             "duration_minutes": 60,
             "session_date": "2030-01-01T10:00:00Z",
+            "start_time": DEFAULT_START_TIME,
             "rate_per_hour": 80.0,
             "notes": "Algebra",
         },
@@ -65,6 +68,7 @@ def test_create_session_rejects_other_users_student():
             "subject": "Math",
             "duration_minutes": 60,
             "session_date": "2030-01-01T10:00:00Z",
+            "start_time": DEFAULT_START_TIME,
             "rate_per_hour": 80.0,
         },
         headers={"Authorization": f"Bearer {token_b}"},
@@ -85,6 +89,7 @@ def test_list_sessions_for_student_owner_isolated():
                 "subject": f"Sub{i}",
                 "duration_minutes": 30,
                 "session_date": f"2030-01-0{i+1}T10:00:00Z",
+                "start_time": DEFAULT_START_TIME,
             },
             headers={"Authorization": f"Bearer {token}"},
         )
@@ -105,6 +110,7 @@ def test_list_sessions_for_student_owner_isolated():
             "subject": "Other",
             "duration_minutes": 45,
             "session_date": "2030-01-05T10:00:00Z",
+            "start_time": DEFAULT_START_TIME,
         },
         headers={"Authorization": f"Bearer {token_other}"},
     )
@@ -127,6 +133,7 @@ def test_get_session_owner_isolated():
             "subject": "Math",
             "duration_minutes": 60,
             "session_date": "2030-01-01T10:00:00Z",
+            "start_time": DEFAULT_START_TIME,
         },
         headers={"Authorization": f"Bearer {token_a}"},
     )
@@ -147,6 +154,7 @@ def test_update_session_recalculates_cost():
             "subject": "Math",
             "duration_minutes": 60,
             "session_date": "2030-01-01T10:00:00Z",
+            "start_time": DEFAULT_START_TIME,
             "rate_per_hour": 80.0,
         },
         headers={"Authorization": f"Bearer {token}"},
@@ -174,6 +182,7 @@ def test_delete_session():
             "subject": "Math",
             "duration_minutes": 60,
             "session_date": "2030-01-01T10:00:00Z",
+            "start_time": DEFAULT_START_TIME,
         },
         headers={"Authorization": f"Bearer {token}"},
     ).json()["id"]
@@ -199,6 +208,7 @@ def test_list_sessions_without_student_id_returns_all_user_sessions():
             "subject": "SubA",
             "duration_minutes": 30,
             "session_date": "2030-01-01T10:00:00Z",
+            "start_time": DEFAULT_START_TIME,
         },
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -209,6 +219,7 @@ def test_list_sessions_without_student_id_returns_all_user_sessions():
             "subject": "SubB",
             "duration_minutes": 45,
             "session_date": "2030-01-02T10:00:00Z",
+            "start_time": DEFAULT_START_TIME,
         },
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -227,7 +238,13 @@ def test_create_session_defaults_attendance_and_billing():
 
     resp = client.post(
         "/sessions",
-        json={"student_id": student_id, "subject": "Math", "duration_minutes": 60, "session_date": "2030-01-01T10:00:00Z"},
+        json={
+            "student_id": student_id,
+            "subject": "Math",
+            "duration_minutes": 60,
+            "session_date": "2030-01-01T10:00:00Z",
+            "start_time": DEFAULT_START_TIME,
+        },
         headers={"Authorization": f"Bearer {token}"},
     )
     assert resp.status_code in (200, 201)
@@ -243,7 +260,13 @@ def test_update_session_attendance_status():
     student_id = create_student(client, token, {"parent_name": "P", "student_name": "S"}).json()["id"]
     session_id = client.post(
         "/sessions",
-        json={"student_id": student_id, "subject": "Math", "duration_minutes": 60, "session_date": "2030-01-01T10:00:00Z"},
+        json={
+            "student_id": student_id,
+            "subject": "Math",
+            "duration_minutes": 60,
+            "session_date": "2030-01-01T10:00:00Z",
+            "start_time": DEFAULT_START_TIME,
+        },
         headers={"Authorization": f"Bearer {token}"},
     ).json()["id"]
 
@@ -262,7 +285,13 @@ def test_update_session_billing_status_and_is_billable():
     student_id = create_student(client, token, {"parent_name": "P", "student_name": "S"}).json()["id"]
     session_id = client.post(
         "/sessions",
-        json={"student_id": student_id, "subject": "Math", "duration_minutes": 60, "session_date": "2030-01-01T10:00:00Z"},
+        json={
+            "student_id": student_id,
+            "subject": "Math",
+            "duration_minutes": 60,
+            "session_date": "2030-01-01T10:00:00Z",
+            "start_time": DEFAULT_START_TIME,
+        },
         headers={"Authorization": f"Bearer {token}"},
     ).json()["id"]
 
@@ -289,6 +318,7 @@ def test_invalid_attendance_status_rejected():
             "subject": "Math",
             "duration_minutes": 60,
             "session_date": "2030-01-01T10:00:00Z",
+            "start_time": DEFAULT_START_TIME,
             "attendance_status": "teleported",
         },
         headers={"Authorization": f"Bearer {token}"},
@@ -308,6 +338,7 @@ def test_invalid_billing_status_rejected():
             "subject": "Math",
             "duration_minutes": 60,
             "session_date": "2030-01-01T10:00:00Z",
+            "start_time": DEFAULT_START_TIME,
             "billing_status": "unicorn_paid",
         },
         headers={"Authorization": f"Bearer {token}"},

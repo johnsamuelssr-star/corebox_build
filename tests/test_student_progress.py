@@ -37,6 +37,7 @@ def create_session(client: TestClient, token: str, student_id: int, subject: str
         "subject": subject if subject is not None else "",
         "duration_minutes": duration,
         "session_date": "2030-01-01T10:00:00Z",
+        "start_time": "10:00:00",
         "rate_per_hour": rate,
     }
     resp = client.post("/sessions", json=body, headers={"Authorization": f"Bearer {token}"})

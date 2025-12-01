@@ -42,6 +42,7 @@ def create_session(client: TestClient, token: str, student_id: int) -> int:
             "subject": "Math",
             "duration_minutes": 60,
             "session_date": session_date,
+            "start_time": "10:00:00",
             "notes": "Sensitive notes",
             "attendance": "present",
         },

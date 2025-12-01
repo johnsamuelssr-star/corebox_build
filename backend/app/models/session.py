@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, Numeric, String, Text, Time
 from sqlalchemy.orm import relationship
 
 from backend.app.db.base_class import Base
@@ -18,6 +18,7 @@ class Session(Base):
     subject = Column(String, nullable=False)
     duration_minutes = Column(Integer, nullable=False)
     session_date = Column(DateTime, nullable=False)
+    start_time = Column(Time, nullable=False)
     notes = Column(Text, nullable=True)
     rate_per_hour = Column(Numeric(10, 2), nullable=True)
     cost_total = Column(Numeric(10, 2), nullable=True)

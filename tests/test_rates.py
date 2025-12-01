@@ -96,7 +96,13 @@ def test_session_autofills_rate():
 
     resp = client.post(
         "/sessions",
-        json={"student_id": student_id, "subject": "Math", "duration_minutes": 60, "session_date": "2030-01-01T10:00:00Z"},
+        json={
+            "student_id": student_id,
+            "subject": "Math",
+            "duration_minutes": 60,
+            "session_date": "2030-01-01T10:00:00Z",
+            "start_time": "10:00:00",
+        },
         headers={"Authorization": f"Bearer {token}"},
     )
     data = resp.json()
@@ -126,6 +132,7 @@ def test_manual_rate_override():
             "subject": "Science",
             "duration_minutes": 30,
             "session_date": "2030-01-01T10:00:00Z",
+            "start_time": "10:00:00",
             "rate_per_hour": 50.0,
         },
         headers={"Authorization": f"Bearer {token}"},

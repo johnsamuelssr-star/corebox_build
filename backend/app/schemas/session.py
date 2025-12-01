@@ -1,6 +1,6 @@
 """Session schemas for CoreBox CRM."""
 
-from datetime import datetime
+from datetime import datetime, time
 from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict
@@ -10,6 +10,7 @@ class SessionBase(BaseModel):
     subject: str
     duration_minutes: int
     session_date: datetime
+    start_time: time
     notes: Optional[str] = None
     rate_per_hour: Optional[float] = None
     attendance: Optional[Literal["present", "absent", "no_show", "cancelled"]] = "present"
@@ -27,6 +28,7 @@ class SessionUpdate(BaseModel):
     subject: Optional[str] = None
     duration_minutes: Optional[int] = None
     session_date: Optional[datetime] = None
+    start_time: Optional[time] = None
     notes: Optional[str] = None
     rate_per_hour: Optional[float] = None
     attendance: Optional[Literal["present", "absent", "no_show", "cancelled"]] = None

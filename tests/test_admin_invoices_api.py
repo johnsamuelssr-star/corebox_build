@@ -30,7 +30,14 @@ def create_invoice_for_user(client: TestClient, token: str):
     student_id = student_resp.json()["id"]
     client.post(
         "/sessions",
-        json={"student_id": student_id, "subject": "Math", "duration_minutes": 60, "session_date": "2030-01-01T10:00:00Z", "rate_per_hour": 80.0},
+        json={
+            "student_id": student_id,
+            "subject": "Math",
+            "duration_minutes": 60,
+            "session_date": "2030-01-01T10:00:00Z",
+            "start_time": "10:00:00",
+            "rate_per_hour": 80.0,
+        },
         headers={"Authorization": f"Bearer {token}"},
     )
     inv_resp = client.post(f"/invoices/{student_id}/generate", headers={"Authorization": f"Bearer {token}"})

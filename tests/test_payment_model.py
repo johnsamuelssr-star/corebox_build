@@ -1,6 +1,6 @@
 import pytest
 from decimal import Decimal
-from datetime import datetime, timezone
+from datetime import datetime, timezone, time
 
 from backend.app.db.base import Base
 from backend.app.db.session import SessionLocal, engine
@@ -37,6 +37,7 @@ def _create_user_student_invoice(db):
         subject="Math",
         duration_minutes=60,
         session_date=datetime(2030, 1, 1, 10, 0, 0, tzinfo=timezone.utc),
+        start_time=time(10, 0, 0),
         attendance_status="scheduled",
         billing_status="not_applicable",
         is_billable=True,
