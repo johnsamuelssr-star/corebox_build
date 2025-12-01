@@ -21,6 +21,13 @@ class StudentCreate(StudentBase):
     lead_id: Optional[int] = None
 
 
+class StudentCreateForParent(BaseModel):
+    student_name: str
+    grade_level: Optional[int] = None
+    subject_focus: Optional[str] = None
+    status: Optional[str] = "active"
+
+
 class StudentUpdate(BaseModel):
     parent_name: Optional[str] = None
     student_name: Optional[str] = None

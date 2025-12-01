@@ -21,7 +21,11 @@ async def create_or_link_parent(
     current_user=Depends(get_current_user),
 ):
     parent_user = create_or_get_parent_user(
-        db, email=payload.email, password=payload.password, full_name=payload.full_name
+        db,
+        email=payload.email,
+        password=payload.password,
+        full_name=payload.full_name,
+        owner_id=current_user.id,
     )
     students_payload = [(link.student_id, link.is_primary) for link in payload.students]
     link_parent_to_students(

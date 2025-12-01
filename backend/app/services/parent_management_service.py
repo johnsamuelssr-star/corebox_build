@@ -18,6 +18,7 @@ def create_or_get_parent_user(
     db: Session,
     email: str,
     password: Optional[str] = None,
+    owner_id: Optional[int] = None,
     full_name: str | None = None,
     first_name: str | None = None,
     last_name: str | None = None,
@@ -31,6 +32,9 @@ def create_or_get_parent_user(
     """
     user = db.query(User).filter(User.email == email).first()
     if user:
+        if owner_id is not None and user.owner_id is None:
+            user.owner_id = owner_id
+            db.flush()
         return user
 
     hashed_password = get_password_hash(password) if password else None
@@ -41,6 +45,7 @@ def create_or_get_parent_user(
     user = User(
         email=email,
         hashed_password=hashed_password,
+        owner_id=owner_id,
         full_name=computed_full_name,
         first_name=first_name,
         last_name=last_name,

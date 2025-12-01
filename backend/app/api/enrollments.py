@@ -37,6 +37,7 @@ async def create_family_enrollment(
             db=db,
             email=enrollment.parent.email,
             password=None,
+            owner_id=current_user.id,
             first_name=enrollment.parent.first_name,
             last_name=enrollment.parent.last_name,
             phone=enrollment.parent.phone,

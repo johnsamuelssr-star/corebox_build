@@ -25,3 +25,11 @@ class ParentContactRead(BaseModel):
     bio: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ParentCreate(BaseModel):
+    email: str
+    first_name: str | None = None
+    last_name: str | None = None
+    phone: str | None = None
+    notes: str | None = None
