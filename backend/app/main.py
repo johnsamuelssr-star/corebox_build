@@ -31,6 +31,7 @@ from backend.app.api import enrollments
 from backend.app.api import parent
 from backend.app.api import admin_parents
 from backend.app.api import parent_portal
+from backend.app.api import parents
 from backend.app.api import owner
 from backend.app.core.dev_seed import ensure_default_dev_owner
 from backend.app.db.session import SessionLocal
@@ -78,6 +79,7 @@ app.include_router(enrollments.router)
 app.include_router(parent.router)
 app.include_router(admin_parents.router)
 app.include_router(parent_portal.router)
+app.include_router(parents.router)
 app.include_router(owner.router)
 
 
