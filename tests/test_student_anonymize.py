@@ -3,8 +3,9 @@ from fastapi.testclient import TestClient
 from datetime import datetime, timezone
 
 from backend.app.db.base import Base
-from backend.app.db.session import engine
+from backend.app.db.session import engine, SessionLocal
 from backend.app.main import app
+from backend.app.models.user import User
 
 
 @pytest.fixture(autouse=True)
@@ -107,6 +108,45 @@ def test_anonymize_student_forbidden_for_other_owner():
 
     resp = client.post(f"/students/{student_id}/anonymize", headers={"Authorization": f"Bearer {token_other}"})
     assert resp.status_code == 404  # isolated by owner filter
+
+
+def test_parent_remains_active_after_anonymization():
+    client = TestClient(app)
+    token = register_and_login(client, "owner5@example.com", "secret")
+
+    # Create a parent and a linked student
+    parent_resp = client.post(
+        "/parents",
+        json={"email": "parentactive@example.com", "first_name": "Parent", "last_name": "Active"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert parent_resp.status_code in (200, 201)
+    parent_id = parent_resp.json()["id"]
+
+    student_resp = client.post(
+        f"/parents/{parent_id}/students",
+        json={"student_name": "Child", "grade_level": 4},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert student_resp.status_code in (200, 201)
+    student_id = student_resp.json()["id"]
+
+    anon_resp = client.post(f"/students/{student_id}/anonymize", headers={"Authorization": f"Bearer {token}"})
+    assert anon_resp.status_code == 200
+    assert anon_resp.json()["already_anonymized"] is False
+
+    # Parent should remain active and listed
+    parents_list = client.get("/parents", headers={"Authorization": f"Bearer {token}"})
+    assert parents_list.status_code == 200
+    assert any(p["id"] == parent_id for p in parents_list.json())
+
+    db = SessionLocal()
+    try:
+        parent_user = db.query(User).filter(User.id == parent_id).first()
+        assert parent_user is not None
+        assert parent_user.is_active is True
+    finally:
+        db.close()
 
 
 def test_anonymize_student_not_found():
