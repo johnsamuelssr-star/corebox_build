@@ -104,6 +104,7 @@ def _serialize_session(session_obj: SessionModel, current_user: User) -> dict:
     )
     if not privileged:
         data.pop("cost_total", None)
+    data["rate_plan"] = data.get("rate_plan") or getattr(session_obj, "rate_plan", None) or "regular"
     return data
 
 
@@ -132,6 +133,7 @@ async def create_session(session_in: SessionCreate, db: Session = Depends(get_db
         attendance_status=session_in.attendance_status or "scheduled",
         billing_status=session_in.billing_status or "not_applicable",
         is_billable=session_in.is_billable if session_in.is_billable is not None else True,
+        rate_plan=plan,
     )
     db.add(session_obj)
     db.commit()

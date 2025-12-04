@@ -45,6 +45,7 @@ class SessionRead(SessionBase):
     student_id: int
     owner_id: int
     cost_total: Optional[float] = None
+    rate_plan: str | None = "regular"
     created_at: datetime
     updated_at: datetime
     attendance_status: str

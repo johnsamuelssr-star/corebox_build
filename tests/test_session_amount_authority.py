@@ -78,7 +78,9 @@ def test_client_amount_ignored_use_plan_rate():
         headers={"Authorization": f"Bearer {token}"},
     )
     assert resp_reg.status_code in (200, 201)
-    assert Decimal(str(resp_reg.json()["cost_total"])) == Decimal("100")
+    resp_reg_json = resp_reg.json()
+    assert Decimal(str(resp_reg_json["cost_total"])) == Decimal("100")
+    assert resp_reg_json["rate_plan"] == "regular"
 
     resp_disc = client.post(
         "/sessions",
@@ -93,4 +95,6 @@ def test_client_amount_ignored_use_plan_rate():
         headers={"Authorization": f"Bearer {token}"},
     )
     assert resp_disc.status_code in (200, 201)
-    assert Decimal(str(resp_disc.json()["cost_total"])) == Decimal("50")
+    resp_disc_json = resp_disc.json()
+    assert Decimal(str(resp_disc_json["cost_total"])) == Decimal("50")
+    assert resp_disc_json["rate_plan"] == "discount"

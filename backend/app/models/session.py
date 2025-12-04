@@ -27,6 +27,7 @@ class Session(Base):
     attendance_status = Column(String(20), nullable=False, default="scheduled")
     billing_status = Column(String(20), nullable=False, default="not_applicable")
     is_billable = Column(Boolean, nullable=False, default=True)
+    rate_plan = Column(String(20), nullable=False, default="regular")
     created_at = Column(DateTime, nullable=False, default=utc_now)
     updated_at = Column(DateTime, nullable=False, default=utc_now, onupdate=utc_now)
 
