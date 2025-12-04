@@ -21,6 +21,7 @@ class User(Base):
     organization_name = Column(String(255), nullable=True)
     avatar_url = Column(String(512), nullable=True)
     bio = Column(Text, nullable=True)
+    rate_plan = Column(String(20), nullable=False, default="regular")
     last_login = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

@@ -11,6 +11,7 @@ class FamilyEnrollmentParentCreate(BaseModel):
     email: EmailStr
     phone: Optional[str] = None
     notes: Optional[str] = None
+    rate_plan: Optional[str] = "regular"
 
 
 class FamilyEnrollmentParentRead(BaseModel):
@@ -20,6 +21,7 @@ class FamilyEnrollmentParentRead(BaseModel):
     last_name: Optional[str] = None
     phone: Optional[str] = None
     notes: Optional[str] = Field(default=None, alias="bio")
+    rate_plan: Optional[str] = "regular"
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 

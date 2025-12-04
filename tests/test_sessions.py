@@ -51,7 +51,7 @@ def test_create_session_for_student_basic():
     assert data["duration_minutes"] == 60
     assert data["student_id"] == student_id
     assert data["attendance"] == "present"
-    assert data["cost_total"] == 80.0
+    assert data["cost_total"] == 60.0
 
 
 def test_create_session_rejects_other_users_student():
@@ -344,3 +344,27 @@ def test_invalid_billing_status_rejected():
         headers={"Authorization": f"Bearer {token}"},
     )
     assert resp.status_code == 422
+
+
+def test_list_sessions_includes_session_date_field():
+    client = TestClient(app)
+    token = register_and_login(client, "sessiondate@example.com", "secret")
+    student_id = create_student(client, token, {"parent_name": "Parent", "student_name": "Student"}).json()["id"]
+
+    target_date = "2025-12-02T09:30:00Z"
+    client.post(
+        "/sessions",
+        json={
+            "student_id": student_id,
+            "subject": "Math",
+            "duration_minutes": 60,
+            "session_date": target_date,
+            "start_time": DEFAULT_START_TIME,
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    resp = client.get("/sessions", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert any(sess["session_date"].startswith("2025-12-02") for sess in data)

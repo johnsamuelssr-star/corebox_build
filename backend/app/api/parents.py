@@ -7,7 +7,7 @@ from backend.app.dependencies.auth import get_current_user, get_db
 from backend.app.models.parent_link import ParentStudentLink
 from backend.app.models.student import Student
 from backend.app.models.user import User
-from backend.app.schemas.parent import ParentContactRead, ParentCreate
+from backend.app.schemas.parent import ParentContactRead, ParentCreate, ParentUpdate
 from backend.app.schemas.student import StudentRead, StudentCreateForParent
 from backend.app.services.parent_management_service import create_or_get_parent_user
 
@@ -79,6 +79,7 @@ async def create_parent(
         last_name=payload.last_name,
         phone=payload.phone,
         notes=payload.notes,
+        rate_plan=payload.rate_plan or "regular",
     )
     db.commit()
     db.refresh(parent_user)
@@ -92,6 +93,29 @@ async def get_parent(
     current_user: User = Depends(get_current_user),
 ):
     return _get_owned_parent_user(db, parent_id, current_user.id)
+
+
+@router.put("/{parent_id}", response_model=ParentContactRead)
+async def update_parent(
+    parent_id: int,
+    payload: ParentUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    parent_user = _get_owned_parent_user(db, parent_id, current_user.id)
+    if payload.first_name is not None:
+        parent_user.first_name = payload.first_name
+    if payload.last_name is not None:
+        parent_user.last_name = payload.last_name
+    if payload.phone is not None:
+        parent_user.phone = payload.phone
+    if payload.notes is not None:
+        parent_user.bio = payload.notes
+    if payload.rate_plan is not None:
+        parent_user.rate_plan = payload.rate_plan or "regular"
+    db.commit()
+    db.refresh(parent_user)
+    return parent_user
 
 
 @router.get("/{parent_id}/students", response_model=list[StudentRead])
@@ -146,4 +170,7 @@ async def add_student_to_parent(
 
     db.commit()
     db.refresh(student)
+    # attach parent metadata for response
+    student.parent_id = parent_user.id
+    student.parent_rate_plan = parent_user.rate_plan or "regular"
     return student

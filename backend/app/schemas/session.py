@@ -13,6 +13,7 @@ class SessionBase(BaseModel):
     start_time: time
     notes: Optional[str] = None
     rate_per_hour: Optional[float] = None
+    cost_total: Optional[float] = None
     attendance: Optional[Literal["present", "absent", "no_show", "cancelled"]] = "present"
     session_type: Optional[Literal["online", "in_person"]] = None
     attendance_status: Optional[Literal["scheduled", "completed", "cancelled", "no_show"]] = None
@@ -31,6 +32,7 @@ class SessionUpdate(BaseModel):
     start_time: Optional[time] = None
     notes: Optional[str] = None
     rate_per_hour: Optional[float] = None
+    cost_total: Optional[float] = None
     attendance: Optional[Literal["present", "absent", "no_show", "cancelled"]] = None
     session_type: Optional[Literal["online", "in_person"]] = None
     attendance_status: Optional[Literal["scheduled", "completed", "cancelled", "no_show"]] = None

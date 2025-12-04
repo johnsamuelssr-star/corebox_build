@@ -41,6 +41,8 @@ class StudentRead(StudentBase):
     lead_id: Optional[int] = None
     parent_name: Optional[str] = None
     student_name: Optional[str] = None
+    parent_id: Optional[int] = None
+    parent_rate_plan: Optional[str] = None
     anonymized_by_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime

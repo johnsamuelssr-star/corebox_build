@@ -58,6 +58,21 @@ def _get_owned_lead(db: Session, lead_id: Optional[int], user_id: int) -> Lead |
     return lead
 
 
+def _attach_parent_metadata(student: Student) -> Student:
+    parent_id = None
+    rate_plan = "regular"
+    primary_link = next((link for link in student.parent_links if getattr(link, "is_primary", False)), None)
+    if primary_link is None and student.parent_links:
+        primary_link = student.parent_links[0]
+    parent_user = getattr(primary_link, "parent_user", None) if primary_link else None
+    if parent_user:
+        parent_id = parent_user.id
+        rate_plan = parent_user.rate_plan or "regular"
+    student.parent_id = parent_id
+    student.parent_rate_plan = rate_plan
+    return student
+
+
 @router.post("/", response_model=StudentRead, status_code=status.HTTP_201_CREATED)
 async def create_student(student_in: StudentCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     if student_in.lead_id is not None:
@@ -74,12 +89,13 @@ async def create_student(student_in: StudentCreate, db: Session = Depends(get_db
     db.add(student)
     db.commit()
     db.refresh(student)
+    _attach_parent_metadata(student)
     return student
 
 
 @router.get("/", response_model=list[StudentRead])
 async def list_students(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return (
+    students = (
         db.query(Student)
         .filter(
             Student.owner_id == current_user.id,
@@ -88,12 +104,13 @@ async def list_students(db: Session = Depends(get_db), current_user: User = Depe
         )
         .all()
     )
+    return [_attach_parent_metadata(stu) for stu in students]
 
 
 @router.get("/{student_id}", response_model=StudentRead)
 async def get_student(student_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     student = _get_owned_student(db, student_id, current_user.id)
-    return student
+    return _attach_parent_metadata(student)
 
 
 @router.get("/{student_id}/sessions", response_model=list[SessionRead])
@@ -254,6 +271,7 @@ async def update_student(student_id: int, student_in: StudentUpdate, db: Session
             setattr(student, field, value)
     db.commit()
     db.refresh(student)
+    _attach_parent_metadata(student)
     return student
 
 

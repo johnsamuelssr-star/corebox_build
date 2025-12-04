@@ -24,6 +24,7 @@ def create_or_get_parent_user(
     last_name: str | None = None,
     phone: str | None = None,
     notes: str | None = None,
+    rate_plan: str | None = "regular",
 ) -> User:
     """
     Idempotent-ish helper:
@@ -52,6 +53,7 @@ def create_or_get_parent_user(
         phone=phone,
         bio=notes,
         is_active=True,
+        rate_plan=rate_plan or "regular",
     )
     db.add(user)
     db.flush()

@@ -42,6 +42,7 @@ async def create_family_enrollment(
             last_name=enrollment.parent.last_name,
             phone=enrollment.parent.phone,
             notes=enrollment.parent.notes,
+            rate_plan=enrollment.parent.rate_plan or "regular",
         )
 
         created_students: list[Student] = []

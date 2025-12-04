@@ -16,3 +16,4 @@ from backend.app.models.invoice import Invoice  # noqa: F401
 from backend.app.models.payment import Payment  # noqa: F401
 from backend.app.models.parent_link import ParentStudentLink  # noqa: F401
 from backend.app.models.audit_log import AuditLog  # noqa: F401
+from backend.app.models.rate_settings import RateSettings  # noqa: F401
